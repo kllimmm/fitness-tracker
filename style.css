@@ -1,0 +1,572 @@
+:root {
+    --sys-blue: #00f2ff;
+    --sys-blue-glow: rgba(0, 242, 255, 0.4);
+    --sys-bg: rgba(6, 15, 25, 0.85);
+    --sys-border: #00f2ff55;
+    --sys-text: #e0faff;
+    --sys-dim: #70a0a5;
+    --sys-font: 'Rajdhani', sans-serif;
+    --sys-header-font: 'Orbitron', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body.system-bg {
+    background: #02080d url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+    color: var(--sys-text);
+    font-family: var(--sys-font);
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+.scanline {
+    width: 100%;
+    height: 100px;
+    z-index: 1000;
+    background: linear-gradient(0deg, transparent 0%, rgba(0, 242, 255, 0.05) 50%, transparent 100%);
+    opacity: 0.1;
+    position: fixed;
+    bottom: 100%;
+    animation: scanline 8s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes scanline {
+    0% { bottom: 100%; }
+    100% { bottom: -100px; }
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Header */
+.system-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.header-line {
+    height: 2px;
+    background: var(--sys-blue);
+    flex-grow: 1;
+    box-shadow: 0 0 10px var(--sys-blue);
+}
+
+.system-header h1 {
+    font-family: var(--sys-header-font);
+    font-size: 1.8rem;
+    letter-spacing: 5px;
+    color: var(--sys-blue);
+    text-shadow: 0 0 15px var(--sys-blue-glow);
+}
+
+/* Grid Layout */
+.system-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+/* System Cards */
+.system-card {
+    background: var(--sys-bg);
+    border: 1px solid var(--sys-border);
+    position: relative;
+    padding: 20px;
+    margin-bottom: 20px;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%);
+    box-shadow: inset 0 0 20px rgba(0, 242, 255, 0.05);
+}
+
+.card-title {
+    font-family: var(--sys-header-font);
+    font-size: 0.9rem;
+    color: var(--sys-blue);
+    border-bottom: 1px solid var(--sys-border);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-reset {
+    background: transparent;
+    border: none;
+    color: #f44336;
+    font-family: var(--sys-header-font);
+    font-size: 0.7rem;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: 0.3s;
+}
+
+.btn-register {
+    background: transparent;
+    border: none;
+    color: var(--sys-blue);
+    font-family: var(--sys-header-font);
+    font-size: 0.7rem;
+    cursor: pointer;
+    margin-left: 10px;
+    letter-spacing: 1px;
+    text-decoration: underline;
+    transition: 0.3s;
+}
+
+.btn-logout {
+    background: transparent;
+    border: none;
+    color: var(--sys-dim);
+    font-family: var(--sys-header-font);
+    font-size: 0.7rem;
+    cursor: pointer;
+    margin-left: 10px;
+    letter-spacing: 1px;
+    text-decoration: underline;
+    transition: 0.3s;
+}
+
+.btn-logout:hover {
+    color: var(--sys-blue);
+    text-shadow: 0 0 8px var(--sys-blue-glow);
+}
+
+.btn-register:hover {
+    text-shadow: 0 0 10px var(--sys-blue);
+}
+
+.total-xp-tag {
+    font-size: 0.7rem;
+    background: rgba(0, 242, 255, 0.1);
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-left: 10px;
+    color: var(--sys-blue);
+    border: 1px solid rgba(0, 242, 255, 0.2);
+}
+
+.timer-text {
+    font-family: var(--sys-header-font);
+    color: #f44336;
+    font-size: 0.8rem;
+    background: rgba(244, 67, 54, 0.1);
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+}
+
+.btn-delete {
+    background: transparent;
+    border: 1px solid #f44336;
+    color: #f44336;
+    padding: 5px 10px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: 0.3s;
+}
+
+.btn-delete:hover {
+    background: #f44336;
+    color: #000;
+}
+
+/* Avatar & Status */
+.status-content {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.avatar-box {
+    width: 100px;
+    text-align: center;
+}
+
+#character-avatar {
+    width: 100%;
+    height: 120px;
+    color: var(--sys-dim);
+    transition: all 0.5s ease;
+}
+
+.rank-container {
+    margin-top: 10px;
+    font-size: 0.8rem;
+}
+
+.rank-value {
+    color: var(--sys-blue);
+    font-weight: bold;
+    text-shadow: 0 0 5px var(--sys-blue-glow);
+}
+
+.level-box {
+    flex-grow: 1;
+}
+
+.level-num {
+    font-family: var(--sys-header-font);
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: #fff;
+}
+
+.day-tag {
+    font-size: 0.65rem;
+    color: var(--sys-blue);
+    letter-spacing: 1px;
+    opacity: 0.8;
+    margin-top: 5px;
+    font-family: var(--sys-header-font);
+}
+
+.system-progress-bg {
+    background: rgba(255, 255, 255, 0.05);
+    height: 6px;
+    margin-top: 5px;
+}
+
+.system-progress-fill {
+    height: 100%;
+    background: var(--sys-blue);
+    width: 0%;
+    box-shadow: 0 0 10px var(--sys-blue);
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Stats */
+.stats-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 15px;
+    background: rgba(0, 242, 255, 0.03);
+    border-left: 3px solid transparent;
+    transition: 0.3s;
+}
+
+.stat-row:hover {
+    background: rgba(0, 242, 255, 0.08);
+    border-left-color: var(--sys-blue);
+}
+
+.stat-name {
+    color: var(--sys-dim);
+    font-weight: 500;
+}
+
+.stat-val {
+    color: #fff;
+    font-weight: bold;
+    margin-left: auto;
+    margin-right: 20px;
+}
+
+.stat-up {
+    background: transparent;
+    border: 1px solid var(--sys-blue);
+    color: var(--sys-blue);
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.stat-up:hover:not(:disabled) {
+    background: var(--sys-blue);
+    color: #000;
+}
+
+.stat-up:disabled {
+    opacity: 0.2;
+    cursor: not-allowed;
+}
+
+/* Daily Quest Checklist */
+.daily-checklist {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.check-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 1.1rem;
+}
+
+.check-item input[type="checkbox"] {
+    accent-color: var(--sys-blue);
+    width: 18px;
+    height: 18px;
+}
+
+/* Buttons */
+.btn-system {
+    background: rgba(0, 242, 255, 0.1);
+    border: 1px solid var(--sys-blue);
+    color: var(--sys-blue);
+    padding: 12px;
+    font-family: var(--sys-header-font);
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: 0.3s;
+    width: 100%;
+    text-transform: uppercase;
+    margin-top: 10px;
+}
+
+.btn-system:hover {
+    background: var(--sys-blue);
+    color: #000;
+    box-shadow: 0 0 15px var(--sys-blue-glow);
+}
+
+/* System Form & Inputs */
+.system-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.form-row {
+    display: flex;
+    gap: 10px;
+}
+
+.input-bracket {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.input-label {
+    font-family: var(--sys-header-font);
+    font-size: 0.65rem;
+    color: var(--sys-blue);
+    letter-spacing: 1px;
+    opacity: 0.8;
+}
+
+.system-form input, 
+.system-form select {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--sys-border);
+    color: #fff;
+    padding: 10px 15px;
+    font-family: var(--sys-font);
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s ease;
+    width: 100%;
+    border-left: 3px solid var(--sys-blue); /* Distinctive tactical border */
+}
+
+.system-form input:focus, 
+.system-form select:focus {
+    border-color: var(--sys-blue);
+    background: rgba(0, 242, 255, 0.1);
+    box-shadow: 0 0 10px var(--sys-blue-glow);
+}
+
+.system-form input::placeholder {
+    color: var(--sys-dim);
+    opacity: 0.6;
+    letter-spacing: 1px;
+}
+
+/* Custom styling for the XP number input */
+input[type="number"]#exercise-xp {
+    width: 80px;
+    text-align: center;
+}
+
+/* Custom styling for Select dropdown */
+.system-form select {
+    appearance: none;
+    cursor: pointer;
+    background-image: linear-gradient(45deg, transparent 50%, var(--sys-blue) 50%), 
+                      linear-gradient(135deg, var(--sys-blue) 50%, transparent 50%);
+    background-position: calc(100% - 20px) calc(1em + 2px), 
+                         calc(100% - 15px) calc(1em + 2px);
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+}
+
+.system-form select option {
+    background: #060f19;
+    color: #fff;
+}
+
+/* System List */
+.system-list {
+    margin-top: 20px;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.exercise-item {
+    background: rgba(255, 255, 255, 0.02);
+    padding: 12px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid rgba(0, 242, 255, 0.1);
+}
+
+/* Modal */
+.system-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    backdrop-filter: blur(8px);
+}
+
+.modal-frame {
+    background: #060f19;
+    border: 2px solid var(--sys-blue);
+    width: 90%;
+    max-width: 450px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 0 40px var(--sys-blue-glow);
+}
+
+.modal-header {
+    color: var(--sys-blue);
+    font-family: var(--sys-header-font);
+    border-bottom: 1px solid var(--sys-blue);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.level-up-text {
+    color: #fff;
+    font-family: var(--sys-header-font);
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+}
+
+.modal-divider {
+    height: 1px;
+    background: var(--sys-border);
+    margin: 20px 0;
+}
+
+.reward-text {
+    color: var(--sys-blue);
+    font-weight: bold;
+}
+
+/* Avatar Evolution System */
+#character-avatar {
+    width: 100%;
+    height: 140px;
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: drop-shadow(0 0 5px transparent);
+}
+
+.shadow-part, .eyes {
+    transition: all 0.8s ease;
+}
+
+/* Rank E: Weakest Hunter */
+.rank-e { color: #555 !important; }
+
+/* Rank D: Greenish Hue */
+.rank-d { color: #4caf50 !important; filter: drop-shadow(0 0 5px #4caf50) !important; }
+
+/* Rank C: Blue Aura */
+.rank-c { color: #00f2ff !important; filter: drop-shadow(0 0 8px #00f2ff) !important; }
+
+/* Rank B: Purple / Broadening */
+.rank-b { color: #bb86fc !important; filter: drop-shadow(0 0 10px #bb86fc) !important; }
+.rank-b #avatar-torso { transform: scaleX(1.1); transform-origin: center; }
+
+/* Rank A: Glowing Eyes + Sharpness */
+.rank-a { color: #ff9800 !important; filter: drop-shadow(0 0 12px #ff9800) !important; }
+.rank-a #eye-l, .rank-a #eye-r { opacity: 1 !important; fill: #fff; }
+.rank-a #avatar-torso { transform: scale(1.15, 1.05); transform-origin: center; }
+
+/* Rank S: Shadow Blade Transformation Begins */
+.rank-s { color: #f44336 !important; filter: drop-shadow(0 0 15px #f44336) !important; }
+.rank-s #avatar-sword { opacity: 0.8 !important; }
+.rank-s #eye-l, .rank-s #eye-r { opacity: 1 !important; fill: #f44336; }
+.rank-s #avatar-torso { transform: scale(1.2, 1.08); transform-origin: center; }
+
+/* Rank SS: Monarch Blade Emerges */
+.rank-ss { color: #ffca28 !important; filter: drop-shadow(0 0 20px #ffca28) !important; }
+.rank-ss #avatar-sword { opacity: 1 !important; transform: scaleY(1.2); transform-origin: bottom; }
+.rank-ss #avatar-crown { opacity: 1 !important; }
+.rank-ss #eye-l, .rank-ss #eye-r { opacity: 1 !important; fill: #fff; filter: blur(0.5px); }
+.rank-ss #avatar-torso { transform: scale(1.25, 1.1); transform-origin: center; }
+
+/* Rank SSS: Absolute Monarch Blade */
+.rank-sss { color: #ffffff !important; animation: godlyGlow 2s infinite alternate !important; }
+.rank-sss #avatar-sword { opacity: 1 !important; transform: scale(1.2, 1.5); transform-origin: bottom; filter: drop-shadow(0 0 10px #fff); }
+.rank-sss #avatar-crown { opacity: 1 !important; filter: drop-shadow(0 0 5px #fff); }
+.rank-sss #eye-l, .rank-sss #eye-r { opacity: 1 !important; fill: #00f2ff; filter: blur(1px); }
+.rank-sss #avatar-torso { transform: scale(1.3, 1.15); transform-origin: center; }
+
+@keyframes shadowPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@keyframes godlyGlow {
+    0% { filter: drop-shadow(0 0 15px #fff) drop-shadow(0 0 30px #00f2ff); }
+    100% { filter: drop-shadow(0 0 25px #fff) drop-shadow(0 0 50px #00f2ff); }
+}
+
+/* Animation */
+@keyframes pulse {
+    0% { opacity: 0.8; }
+    100% { opacity: 1; }
+}
+
+.hidden { display: none !important; }
+
+.xp-floater {
+    position: fixed;
+    color: var(--sys-blue);
+    font-family: var(--sys-header-font);
+    pointer-events: none;
+    animation: sysFloat 1s ease-out forwards;
+    z-index: 3000;
+}
+
+@keyframes sysFloat {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(-100px); opacity: 0; }
+}
+
+@media (max-width: 800px) {
+    .system-grid { grid-template-columns: 1fr; }
+}
