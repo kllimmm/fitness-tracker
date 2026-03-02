@@ -95,8 +95,19 @@ function init() {
     updateUI();
     startGlobalTimers();
     startManaRegen();
+    registerServiceWorker();
 
     window.addEventListener('click', () => { SystemAudio.init(); }, { once: true });
+}
+
+function registerServiceWorker() {
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('System SW: Synchronized', reg))
+                .catch(err => console.log('System SW: Failed to Sync', err));
+        });
+    }
 }
 
 // --- BOOT SEQUENCE ---
