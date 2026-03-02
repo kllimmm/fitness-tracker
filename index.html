@@ -7,238 +7,340 @@
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="system-bg">
-    <div class="scanline"></div>
+    <!-- Boot Sequence Overlay -->
+    <div id="boot-overlay" class="boot-overlay">
+        <div class="boot-content">
+            <div class="boot-text" id="boot-text">INITIALIZING...</div>
+            <div class="boot-loader"></div>
+        </div>
+    </div>
+
+    <!-- Feature 2: Quest Clear Banner -->
+    <div id="quest-clear-banner" class="quest-clear-banner hidden">
+        <div class="banner-line top"></div>
+        <div class="banner-text">QUEST CLEAR</div>
+        <div class="banner-line bottom"></div>
+    </div>
+
+    <!-- Dungeon Overlay Effect -->
+    <div id="raid-overlay" class="raid-overlay hidden"></div>
+
     <div class="container">
-        <header class="system-header">
-            <div class="header-line"></div>
-            <h1>[ STATUS WINDOW ]</h1>
-            <div class="header-line"></div>
-        </header>
+        <!-- Penalty Header -->
+        <div id="penalty-warning" class="penalty-banner hidden">WARNING: DAILY QUEST INCOMPLETE - PENALTY IMMINENT</div>
 
-        <main class="system-grid">
-            <!-- Left Column: Status & Avatar -->
-            <div class="column-left">
-                <!-- Status Card -->
-                <section class="system-card status-card">
-                    <div class="card-title">
-                        <div id="name-display-container">
-                            [ USER: <span id="user-name-label">UNREGISTERED</span> ]
-                            <span class="total-xp-tag">TOTAL XP: <span id="total-xp-val">0</span></span>
-                            <span id="cloud-sync-status" style="font-size: 0.6rem; margin-left: 10px; color: #777;">[ CLOUD: OFFLINE ]</span>
-                            <button id="btn-register" class="btn-register" onclick="registerName()">[ REGISTER ]</button>
-                            <button id="btn-logout" class="btn-logout" onclick="showLogoutModal()" style="display:none">[ FORCE LOGOUT ]</button>
+        <main class="system-window" id="main-window">
+            <header class="window-header">
+                <div class="header-glitch" id="window-title">STATUS WINDOW</div>
+                <div id="location-tag" class="location-tag">LOCATION: REAL WORLD</div>
+            </header>
+
+            <section class="window-content">
+                <!-- User Profile Section -->
+                <div class="section-block profile-section">
+                    <div class="avatar-frame">
+                        <div id="character-avatar">
+                            <svg viewBox="0 0 100 140">
+                                <circle cx="50" cy="30" r="12" fill="currentColor" />
+                                <circle id="eye-l" class="eyes" cx="46" cy="30" r="1.5" fill="white" opacity="0"/>
+                                <circle id="eye-r" class="eyes" cx="54" cy="30" r="1.5" fill="white" opacity="0"/>
+                                <path id="avatar-torso" d="M35 45 L65 45 L62 85 L38 85 Z" fill="currentColor" />
+                                <path id="avatar-crown" class="shadow-part" d="M40 20 L50 10 L60 20 L55 18 L50 12 L45 18 Z" fill="currentColor" opacity="0"/>
+                                <rect id="avatar-arm-l" x="22" y="45" width="11" height="35" rx="5" fill="currentColor" />
+                                <rect id="avatar-arm-r" x="67" y="45" width="11" height="35" rx="5" fill="currentColor" />
+                                <g id="avatar-sword" class="shadow-part" opacity="0">
+                                    <rect x="74" y="65" width="4" height="12" fill="#444" />
+                                    <path d="M73 65 L79 65 L76 10 Z" fill="currentColor" />
+                                </g>
+                                <rect x="38" y="85" width="11" height="45" rx="5" fill="currentColor" />
+                                <rect x="51" y="85" width="11" height="45" rx="5" fill="currentColor" />
+                            </svg>
                         </div>
-                        <button class="btn-reset" onclick="resetSystem()">[ RESET SYSTEM ]</button>
+                        <div class="rank-badge" id="rank-text">E-RANK</div>
+                        <div class="cp-display">CP: <span id="cp-val">0</span></div>
                     </div>
-                    <div class="status-content">
-                        <div class="avatar-box">
-                            <div id="character-avatar" class="avatar-novice">
-                                <svg viewBox="0 0 100 140">
-                                    <defs>
-                                        <filter id="glow">
-                                            <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
-                                            <feMerge>
-                                                <feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/>
-                                            </feMerge>
-                                        </filter>
-                                    </defs>
-                                    <!-- Body -->
-                                    <circle cx="50" cy="30" r="12" fill="currentColor" />
-                                    <!-- Glowing Eyes (High Rank) -->
-                                    <circle id="eye-l" class="eyes" cx="46" cy="30" r="1.5" fill="white" opacity="0"/>
-                                    <circle id="eye-r" class="eyes" cx="54" cy="30" r="1.5" fill="white" opacity="0"/>
-                                    
-                                    <path id="avatar-torso" d="M35 45 L65 45 L62 85 L38 85 Z" fill="currentColor" />
-                                    <!-- Crown (High Rank) -->
-                                    <path id="avatar-crown" class="shadow-part" d="M40 20 L50 10 L60 20 L55 18 L50 12 L45 18 Z" fill="currentColor" opacity="0"/>
-                                    
-                                    <rect id="avatar-arm-l" x="22" y="45" width="11" height="35" rx="5" fill="currentColor" />
-                                    <rect id="avatar-arm-r" x="67" y="45" width="11" height="35" rx="5" fill="currentColor" />
-                                    
-                                    <!-- Shadow Sword (Hidden initially) -->
-                                    <g id="avatar-sword" class="shadow-part" opacity="0">
-                                        <rect x="74" y="65" width="4" height="12" fill="#444" /> <!-- Hilt -->
-                                        <path d="M73 65 L79 65 L76 10 Z" fill="currentColor" /> <!-- Blade -->
-                                    </g>
-
-                                    <rect x="38" y="85" width="11" height="45" rx="5" fill="currentColor" />
-                                    <rect x="51" y="85" width="11" height="45" rx="5" fill="currentColor" />
-                                </svg>
-                            </div>
-                            <div class="rank-container">
-                                <span class="rank-label">RANK:</span>
-                                <span id="rank-text" class="rank-value">E-RANK</span>
-                            </div>
-                            <div class="day-tag">[ DAY: <span id="current-day">1</span> ]</div>
+                    
+                    <div class="profile-data">
+                        <div class="data-row">
+                            <span class="label">PLAYER:</span>
+                            <span id="user-name-label" class="value" onclick="openRegistrationModal()" style="cursor: pointer;">UNREGISTERED</span>
                         </div>
-                        <div class="level-box">
-                            <div class="level-num">LV. <span id="level-badge">1</span></div>
-                            <div class="xp-bar-container">
-                                <div class="xp-labels">
-                                    <span>XP: <span id="current-xp">0</span> / <span id="required-xp">100</span></span>
-                                </div>
-                                <div class="system-progress-bg">
-                                    <div id="xp-progress-fill" class="system-progress-fill"></div>
-                                </div>
-                            </div>
+                        <div class="data-row">
+                            <span class="label">LEVEL:</span>
+                            <span id="level-badge" class="value">1</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="label">TOTAL XP:</span>
+                            <span id="total-xp-val" class="value">0</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="label">DAILY XP TOTAL:</span>
+                            <span id="daily-xp-total-val" class="value">0</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="label">HP:</span>
+                            <span id="hp-val" class="value hp-text">100 / 100</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="label">MP:</span>
+                            <span id="mp-val" class="value mp-text">100 / 100</span>
+                        </div>
+                        <div class="xp-bar-container">
+                            <div class="xp-text">XP: <span id="current-xp">0</span> / <span id="required-xp">100</span></div>
+                            <div class="xp-bar"><div id="xp-progress-fill" class="xp-fill"></div></div>
                         </div>
                     </div>
-                </section>
+                </div>
 
-                <!-- Stats Card -->
-                <section class="system-card stats-card">
-                    <div class="card-title" id="stats-card-title">
-                        <span id="stats-owner-name">PLAYER</span> STATS 
-                        <span class="points-tag">POINTS: <span id="available-points">0</span></span>
-                    </div>
-                    <div class="stats-grid">
-                        <div class="stat-row" data-stat="strength">
-                            <span class="stat-name">STRENGTH</span>
+                <div class="divider"></div>
+
+                <!-- Combat Mode Toggle -->
+                <div style="text-align: center; margin-bottom: 20px; display: flex; justify-content: center; gap: 10px;">
+                    <button id="btn-dungeon-toggle" onclick="toggleDungeon()" class="btn-claim" style="width: auto; padding: 10px 30px; border-color: var(--sys-yellow); color: var(--sys-yellow);">ENTER DUNGEON</button>
+                    <button onclick="openInventoryModal()" class="btn-claim" style="width: auto; padding: 10px 30px; border-color: #bb86fc; color: #bb86fc;">MASTERY</button>
+                </div>
+
+                <!-- Stats Section -->
+                <div class="section-block stats-section">
+                    <div class="section-title">ABILITIES <span class="points-tag">POINTS: <span id="available-points">0</span></span></div>
+                    <div class="stats-list">
+                        <div class="stat-row">
+                            <span class="stat-label">STRENGTH:</span>
                             <span id="stat-strength" class="stat-val">1</span>
                             <button class="stat-up" data-stat="strength">+</button>
                         </div>
-                        <div class="stat-row" data-stat="agility">
-                            <span class="stat-name">AGILITY</span>
+                        <div class="stat-row">
+                            <span class="stat-label">AGILITY:</span>
                             <span id="stat-agility" class="stat-val">1</span>
                             <button class="stat-up" data-stat="agility">+</button>
                         </div>
-                        <div class="stat-row" data-stat="sense">
-                            <span class="stat-name">SENSE</span>
+                        <div class="stat-row">
+                            <span class="stat-label">SENSE:</span>
                             <span id="stat-sense" class="stat-val">1</span>
                             <button class="stat-up" data-stat="sense">+</button>
                         </div>
-                        <div class="stat-row" data-stat="vitality">
-                            <span class="stat-name">VITALITY</span>
+                        <div class="stat-row">
+                            <span class="stat-label">VITALITY:</span>
                             <span id="stat-vitality" class="stat-val">1</span>
                             <button class="stat-up" data-stat="vitality">+</button>
                         </div>
-                        <div class="stat-row" data-stat="intelligence">
-                            <span class="stat-name">INTELLIGENCE</span>
+                        <div class="stat-row">
+                            <span class="stat-label">INTELLIGENCE:</span>
                             <span id="stat-intelligence" class="stat-val">1</span>
                             <button class="stat-up" data-stat="intelligence">+</button>
                         </div>
                     </div>
-                </section>
-            </div>
+                </div>
 
-            <!-- Right Column: Quests & Exercises -->
-            <div class="column-right">
-                <!-- Daily Quest Card -->
-                <section class="system-card quest-card">
-                    <div class="card-title">
-                        DAILY QUEST: PREPARATION TO BECOME STRONG
-                        <span id="daily-timer" class="timer-text">23:59:59</span>
-                    </div>
-                    <div class="daily-checklist">
-                        <div class="check-item">
-                            <input type="checkbox" id="q-pushups">
-                            <label for="q-pushups">Push-ups [0/100]</label>
-                        </div>
-                        <div class="check-item">
-                            <input type="checkbox" id="q-situps">
-                            <label for="q-situps">Sit-ups [0/100]</label>
-                        </div>
-                        <div class="check-item">
-                            <input type="checkbox" id="q-squats">
-                            <label for="q-squats">Squats [0/100]</label>
-                        </div>
-                        <div class="check-item">
-                            <input type="checkbox" id="q-run">
-                            <label for="q-run">Running [0/10km]</label>
-                        </div>
-                        <button class="btn-system" id="complete-daily">COMPLETE QUEST</button>
-                    </div>
-                </section>
+                <div class="divider"></div>
 
-                <!-- Custom Exercises -->
-                <section class="system-card logs-card">
-                    <div class="card-title">NEW QUEST CREATION</div>
-                    <form id="exercise-form" class="system-form">
-                        <div class="input-bracket">
-                            <span class="input-label">[ QUEST NAME ]</span>
-                            <input type="text" id="exercise-name" placeholder="Enter quest objective..." required>
-                        </div>
-                        <div class="form-row">
-                            <div class="input-bracket" style="width: 100px;">
-                                <span class="input-label">[ REWARD XP ]</span>
-                                <input type="number" id="exercise-xp" placeholder="XP" min="1" value="10">
+                <!-- TOP QUEST SECTION (Swaps based on Location) -->
+                <div class="section-block main-quest-container">
+                    <div class="section-title">
+                        <span id="quest-section-title" class="daily-title-text" onclick="handleQuestTitleClick()" style="cursor: pointer;">DAILY QUEST</span>
+                        <span id="daily-timer" class="quest-timer" onclick="handleTimerClick()" style="cursor: pointer;">23:59:59</span>
+                    </div>
+                    
+                    <div id="real-world-quest-content">
+                        <div class="quest-subtitle">PREPARATION TO BECOME STRONG</div>
+                        <div class="quest-list">
+                            <div class="quest-item">
+                                <input type="checkbox" id="q-pushups">
+                                <label for="q-pushups">Push-ups <span class="counter">0 / <span id="req-pushups">100</span></span></label>
                             </div>
-                            <div class="input-bracket" style="flex-grow: 1;">
-                                <span class="input-label">[ TARGET STAT ]</span>
-                                <select id="exercise-stat">
-                                    <option value="strength">STRENGTH</option>
-                                    <option value="agility">AGILITY</option>
-                                    <option value="sense">SENSE</option>
-                                    <option value="vitality">VITALITY</option>
-                                    <option value="intelligence">INTELLIGENCE</option>
-                                </select>
+                            <div class="quest-item">
+                                <input type="checkbox" id="q-situps">
+                                <label for="q-situps">Sit-ups <span class="counter">0 / <span id="req-situps">100</span></span></label>
+                            </div>
+                            <div class="quest-item">
+                                <input type="checkbox" id="q-squats">
+                                <label for="q-squats">Squats <span class="counter">0 / <span id="req-squats">100</span></span></label>
+                            </div>
+                            <div class="quest-item">
+                                <input type="checkbox" id="q-run">
+                                <label for="q-run">Running <span class="counter">0 / <span id="req-run">10</span>km</span></label>
                             </div>
                         </div>
-                        <button type="submit" class="btn-system">[ INITIALIZE QUEST ]</button>
+                        <button id="complete-daily" class="btn-claim" onclick="completeDailyQuest()">CLAIM REWARD</button>
+                    </div>
+
+                    <div id="dungeon-quest-content" class="hidden">
+                        <div class="quest-subtitle">SURVIVE THE DUNGEON TRAINING</div>
+                        <p style="text-align:center; font-size:0.7rem; opacity:0.6; color:var(--sys-blue); margin-bottom: 10px;">INITIALIZE OBJECTIVES VIA HEADER (COST: 10 MP)</p>
+                        <div id="exercise-list" class="side-quest-list"></div>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- SIDE QUESTS (Always Visible) -->
+                <div class="section-block logs-section">
+                    <div class="section-title">SIDE QUESTS</div>
+                    <form id="exercise-form" class="side-quest-form">
+                        <div class="input-group">
+                            <input type="text" id="exercise-name" required placeholder="NEW OBJECTIVE... (COST: 10 MP)">
+                        </div>
+                        <div class="input-row">
+                            <input type="number" id="exercise-xp" value="10" min="1">
+                            <select id="exercise-stat">
+                                <option value="strength">STR</option>
+                                <option value="agility">AGI</option>
+                                <option value="sense">SEN</option>
+                                <option value="vitality">VIT</option>
+                                <option value="intelligence">INT</option>
+                            </select>
+                            <button type="submit" class="btn-add-quest">INITIALIZE</button>
+                        </div>
                     </form>
-                    <div id="exercise-list" class="system-list"></div>
-                </section>
-            </div>
+                    <div id="real-world-side-list" class="side-quest-list"></div>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- Hunter's Record -->
+                <div class="section-block record-section">
+                    <div class="section-title">HUNTER'S RECORD <button class="btn-text" onclick="toggleLogs()">VIEW LOGS</button></div>
+                    <div id="hunter-logs" class="hunter-logs hidden"></div>
+                </div>
+            </section>
+
+            <footer class="window-footer">
+                <button onclick="openRebootModal()" class="btn-text" style="color: var(--sys-warn)">REBOOT SYSTEM</button>
+                <div class="day-tag">DAY: <span id="current-day">1</span></div>
+                <button onclick="logout()" class="btn-text">DISCONNECT</button>
+            </footer>
         </main>
     </div>
 
-    <!-- System Modal -->
+    <!-- MASTERY MODAL -->
+    <div id="inventory-modal" class="system-modal hidden">
+        <div class="modal-frame">
+            <div class="modal-header" style="background:#bb86fc;">MASTERY VAULT</div>
+            <div class="modal-body">
+                <div class="inventory-grid" id="inventory-grid">
+                    <!-- Masteries injected via JS -->
+                </div>
+                <button onclick="closeModal('inventory-modal')" class="btn-system" style="border-color:#bb86fc; color:#bb86fc;">[ CLOSE ]</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registration -->
+    <div id="registration-modal" class="system-modal hidden">
+        <div class="modal-frame">
+            <div class="modal-header">IDENTITY VERIFICATION</div>
+            <div class="modal-body">
+                <h2 class="level-up-text">ENTER PLAYER IDENTITY</h2>
+                <div class="modal-divider"></div>
+                <input type="text" id="reg-name-input" placeholder="..." style="width:100%; margin-bottom:20px; background:rgba(0,0,0,0.5); border:1px solid var(--sys-border); color:#fff; padding:12px; text-align:center; font-family:var(--sys-header-font);">
+                <div style="display:flex; gap:10px;">
+                    <button onclick="confirmRegistration()" class="btn-system" style="flex:1;">REGISTER</button>
+                    <button onclick="closeModal('registration-modal')" class="btn-system" style="flex:1; border-color:var(--sys-dim); color:var(--sys-dim);">CANCEL</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reboot -->
+    <div id="reboot-modal" class="system-modal hidden">
+        <div class="modal-frame" style="border-color: var(--sys-warn);">
+            <div class="modal-header" style="background: var(--sys-warn); color: #000;">CRITICAL WARNING</div>
+            <div class="modal-body">
+                <h2 class="level-up-text" style="color: var(--sys-warn);">SYSTEM REBOOT</h2>
+                <p style="font-size: 0.8rem; margin: 10px 0;">ALL PROGRESS WILL BE PERMANENTLY ERASED FROM THE SYSTEM.</p>
+                <div class="modal-divider" style="background: var(--sys-warn);"></div>
+                <div style="display:flex; gap:10px;">
+                    <button onclick="confirmReboot()" class="btn-system" style="flex:1; border-color:var(--sys-warn); color:var(--sys-warn);">PROCEED</button>
+                    <button onclick="closeModal('reboot-modal')" class="btn-system" style="flex:1;">ABORT</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Level Up -->
     <div id="level-up-modal" class="system-modal hidden">
         <div class="modal-frame">
-            <div class="modal-header">NOTICE</div>
+            <div class="modal-header">LEVEL UP</div>
             <div class="modal-body">
-                <h2 class="level-up-text">YOU HAVE LEVELED UP!</h2>
+                <h2 class="level-up-text">RANK ADVANCEMENT</h2>
                 <p>New Level: <span id="modal-new-level">2</span></p>
                 <div class="modal-divider"></div>
                 <p class="reward-text">REWARD: +1 STAT POINT</p>
-                <button onclick="closeModal()" class="btn-system">OK</button>
+                <button onclick="closeModal('level-up-modal')" class="btn-system">OK</button>
             </div>
         </div>
     </div>
 
-    <!-- Registration Modal -->
-    <div id="registration-modal" class="system-modal hidden">
+    <!-- Dungeon Add -->
+    <div id="dungeon-add-modal" class="system-modal hidden">
         <div class="modal-frame">
-            <div class="modal-header">SYSTEM INITIALIZATION</div>
+            <div class="modal-header">OBJECTIVE INITIALIZATION</div>
             <div class="modal-body">
-                <p style="margin-bottom: 20px; color: var(--sys-dim);">THE SYSTEM HAS FOUND A SUITABLE CANDIDATE. PLEASE REGISTER YOUR IDENTITY.</p>
-                <div class="input-bracket" style="margin-bottom: 20px; text-align: left;">
-                    <span class="input-label">[ PLAYER NAME ]</span>
-                    <input type="text" id="reg-name-input" placeholder="Enter name..." autocomplete="off">
+                <input type="text" id="dungeon-new-name" placeholder="CONTENT..." style="width:100%; margin-bottom:15px; background:rgba(0,0,0,0.5); border:1px solid var(--sys-border); color:#fff; padding:10px;">
+                <div style="display:flex; gap:10px; margin-bottom:20px;">
+                    <input type="number" id="dungeon-new-xp" value="10" style="flex:1; background:rgba(0,0,0,0.5); border:1px solid var(--sys-border); color:#fff; padding:10px;">
+                    <select id="dungeon-new-stat" style="flex:1; background:rgba(0,0,0,0.5); border:1px solid var(--sys-border); color:#fff; padding:10px;">
+                        <option value="strength">STR</option>
+                        <option value="agility">AGI</option>
+                        <option value="sense">SEN</option>
+                        <option value="vitality">VIT</option>
+                        <option value="intelligence">INT</option>
+                    </select>
                 </div>
-                <button onclick="submitRegistration()" class="btn-system">[ INITIALIZE PLAYER ]</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Logout Confirmation Modal -->
-    <div id="logout-modal" class="system-modal hidden">
-        <div class="modal-frame" style="border-color: #f44336; box-shadow: 0 0 30px rgba(244, 67, 54, 0.3);">
-            <div class="modal-header" style="color: #f44336; border-color: #f44336;">WARNING</div>
-            <div class="modal-body">
-                <p style="margin-bottom: 20px; color: #fff;">DO YOU WISH TO FORCE LOGOUT FROM THE SYSTEM?</p>
-                <p style="font-size: 0.8rem; color: var(--sys-dim); margin-bottom: 30px;">[ LOCAL PROGRESS WILL BE PRESERVED ]</p>
-                <div style="display: flex; gap: 15px;">
-                    <button onclick="executeLogout()" class="btn-system" style="border-color: #f44336; color: #f44336;">[ CONFIRM ]</button>
-                    <button onclick="closeLogoutModal()" class="btn-system">[ CANCEL ]</button>
+                <div style="display:flex; gap:10px;">
+                    <button onclick="confirmAddDungeonQuest()" class="btn-system" style="flex:1;">INITIALIZE</button>
+                    <button onclick="closeModal('dungeon-add-modal')" class="btn-system" style="flex:1; border-color:var(--sys-dim); color:var(--sys-dim);">CANCEL</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- System Reset Modal -->
-    <div id="reset-modal" class="system-modal hidden">
-        <div class="modal-frame" style="border-color: #f44336; box-shadow: 0 0 30px rgba(244, 67, 54, 0.3);">
-            <div class="modal-header" style="color: #f44336; border-color: #f44336;">CRITICAL WARNING</div>
+    <!-- Config -->
+    <div id="config-modal" class="system-modal hidden">
+        <div class="modal-frame">
+            <div class="modal-header">CONFIGURATION</div>
             <div class="modal-body">
-                <p style="margin-bottom: 20px; color: #fff; font-weight: bold;">ALL PROGRESS WILL BE PERMANENTLY DELETED.</p>
-                <p style="font-size: 0.8rem; color: var(--sys-dim); margin-bottom: 30px;">DO YOU WISH TO REBOOT THE SYSTEM?</p>
-                <div style="display: flex; gap: 15px;">
-                    <button onclick="executeReset()" class="btn-system" style="border-color: #f44336; color: #f44336;">[ REBOOT ]</button>
-                    <button onclick="closeResetModal()" class="btn-system">[ CANCEL ]</button>
+                <h2 class="level-up-text" id="config-title">SET VALUE</h2>
+                <div class="modal-divider"></div>
+                <input type="number" id="config-input" style="width:100%; font-size:1.5rem; margin-bottom:20px; background:rgba(0,0,0,0.5); border:1px solid var(--sys-border); color:#fff; padding:10px; text-align:center;">
+                <div style="display:flex; gap:10px;">
+                    <button id="config-confirm-btn" class="btn-system" style="flex:1;">CONFIRM</button>
+                    <button onclick="closeModal('config-modal')" class="btn-system" style="flex:1; border-color:var(--sys-dim); color:var(--sys-dim);">CANCEL</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Exercise -->
+    <div id="edit-exercise-modal" class="system-modal hidden">
+        <div class="modal-frame">
+            <div class="modal-header">EDIT DATA</div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label style="color:var(--sys-dim); font-size:0.6rem;">CONTENT</label>
+                    <input type="text" id="edit-name" style="width:100%; margin-bottom:15px; background:rgba(0,0,0,0.5); border:1px solid var(--sys-border); color:#fff; padding:8px;">
+                </div>
+                <div class="input-row" style="display:flex; gap:10px; margin-bottom:20px;">
+                    <div style="flex:1;">
+                        <label style="color:var(--sys-dim); font-size:0.6rem;">XP</label>
+                        <input type="number" id="edit-xp" style="width:100%; background:rgba(0,0,0,0.5); border:1px solid var(--sys-border); color:#fff; padding:8px;">
+                    </div>
+                    <div style="flex:1;">
+                        <label style="color:var(--sys-dim); font-size:0.6rem;">STAT</label>
+                        <select id="edit-stat" style="width:100%; background:rgba(0,0,0,0.5); border:1px solid var(--sys-border); color:#fff; padding:8px;">
+                            <option value="strength">STR</option>
+                            <option value="agility">AGI</option>
+                            <option value="sense">SEN</option>
+                            <option value="vitality">VIT</option>
+                            <option value="intelligence">INT</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button onclick="saveExerciseEdit()" class="btn-system" style="flex:1;">UPDATE</button>
+                    <button onclick="closeModal('edit-exercise-modal')" class="btn-system" style="flex:1; border-color:var(--sys-dim); color:var(--sys-dim);">CANCEL</button>
                 </div>
             </div>
         </div>
