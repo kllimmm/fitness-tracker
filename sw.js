@@ -1,4 +1,4 @@
-const CACHE_NAME = 'system-v4';
+const CACHE_NAME = 'system-v5';
 const ASSETS = [
   './',
   './index.html',
@@ -10,12 +10,11 @@ const ASSETS = [
   'https://i.pinimg.com/originals/34/06/17/34061734293f0b2405903b22b1156637.png'
 ];
 
-// Install: Cache everything
+// Install: Cache core assets immediately
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('[SYSTEM] Priming Offline Core...');
-      // Use settled to ignore failed optional external assets (fonts/textures)
+      console.log('[SYSTEM] Priming Offline Core v5...');
       return Promise.allSettled(
         ASSETS.map(url => cache.add(url).catch(err => console.warn(`[SYSTEM] Failed to cache: ${url}`, err)))
       );
@@ -36,16 +35,18 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch Strategy: Cache First, fallback to Network
+// Fetch Strategy: Smart Match (Ignore Query Strings)
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
+    caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => {
+      // Return cached version if found (even if URL has ?v=3.1)
       if (cachedResponse) {
         return cachedResponse;
       }
 
+      // Otherwise, fetch from network
       return fetch(event.request).then((networkResponse) => {
-        // Cache new successful cross-origin or basic requests (fonts, icons, etc)
+        // Cache external assets on the fly if they are successful
         if (networkResponse && networkResponse.status === 200) {
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
@@ -54,7 +55,7 @@ self.addEventListener('fetch', (event) => {
         }
         return networkResponse;
       }).catch(() => {
-        // Offline fallback for navigation
+        // Ultimate offline fallback for navigation
         if (event.request.mode === 'navigate') {
           return caches.match('./index.html');
         }

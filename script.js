@@ -44,6 +44,18 @@ let statUpgradeInterval = null, statUpgradeTimeout = null;
 
 function init() {
     try {
+        // Clear old storage (for v5 migration)
+        if (!localStorage.getItem('systemSyncV5')) {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(regs => {
+                    for(let r of regs) r.unregister();
+                });
+            }
+            localStorage.setItem('systemSyncV5', 'true');
+            location.reload(); 
+            return;
+        }
+
         // 1. Load Data
         loadData();
         
