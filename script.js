@@ -1,5 +1,5 @@
 /**
- * THE SYSTEM - Solo Leveling (Sentient HUD - Master Build v3)
+ * THE SYSTEM - Solo Leveling (Sentient HUD - Master Build v3.1)
  */
 
 const DEFAULT_EXERCISES = [
@@ -43,68 +43,84 @@ let currentEditingId = null;
 let statUpgradeInterval = null, statUpgradeTimeout = null;
 
 function init() {
-    // 1. Load Data
-    loadData();
-    
-    // 2. Bind ALL Elements immediately
-    els = {
-        userNameLabel: document.getElementById('user-name-label'),
-        currentXP: document.getElementById('current-xp'),
-        requiredXP: document.getElementById('required-xp'),
-        xpFill: document.getElementById('xp-progress-fill'),
-        levelBadge: document.getElementById('level-badge'),
-        availablePoints: document.getElementById('available-points'),
-        dungeonExerciseList: document.getElementById('exercise-list'),
-        sideExerciseList: document.getElementById('real-world-side-list'),
-        rankText: document.getElementById('rank-text'),
-        avatar: document.getElementById('character-avatar'),
-        locationTag: document.getElementById('location-tag'),
-        dungeonToggle: document.getElementById('btn-dungeon-toggle'),
-        mainWindow: document.getElementById('main-window'),
-        raidOverlay: document.getElementById('raid-overlay'),
-        questTitle: document.getElementById('quest-section-title'),
-        timerEl: document.getElementById('daily-timer'),
-        realWorldContent: document.getElementById('real-world-quest-content'),
-        dungeonContent: document.getElementById('dungeon-quest-content'),
-        configModal: document.getElementById('config-modal'),
-        configInput: document.getElementById('config-input'),
-        configTitle: document.getElementById('config-title'),
-        configConfirmBtn: document.getElementById('config-confirm-btn'),
-        dungeonAddModal: document.getElementById('dungeon-add-modal'),
-        editModal: document.getElementById('edit-exercise-modal'),
-        regModal: document.getElementById('registration-modal'),
-        regInput: document.getElementById('reg-name-input'),
-        rebootModal: document.getElementById('reboot-modal'),
-        modalLevel: document.getElementById('modal-new-level'),
-        totalXPVal: document.getElementById('total-xp-val'),
-        dailyXPVal: document.getElementById('daily-xp-total-val'),
-        cpVal: document.getElementById('cp-val'),
-        inventoryModal: document.getElementById('inventory-modal'),
-        inventoryGrid: document.getElementById('inventory-grid'),
-        clearBanner: document.getElementById('quest-clear-banner')
-    };
+    try {
+        // 1. Load Data
+        loadData();
+        
+        // 2. Bind ALL Elements immediately
+        els = {
+            userNameLabel: document.getElementById('user-name-label'),
+            currentXP: document.getElementById('current-xp'),
+            requiredXP: document.getElementById('required-xp'),
+            xpFill: document.getElementById('xp-progress-fill'),
+            levelBadge: document.getElementById('level-badge'),
+            availablePoints: document.getElementById('available-points'),
+            dungeonExerciseList: document.getElementById('exercise-list'),
+            sideExerciseList: document.getElementById('real-world-side-list'),
+            rankText: document.getElementById('rank-text'),
+            avatar: document.getElementById('character-avatar'),
+            locationTag: document.getElementById('location-tag'),
+            dungeonToggle: document.getElementById('btn-dungeon-toggle'),
+            mainWindow: document.getElementById('main-window'),
+            raidOverlay: document.getElementById('raid-overlay'),
+            questTitle: document.getElementById('quest-section-title'),
+            timerEl: document.getElementById('daily-timer'),
+            realWorldContent: document.getElementById('real-world-quest-content'),
+            dungeonContent: document.getElementById('dungeon-quest-content'),
+            configModal: document.getElementById('config-modal'),
+            configInput: document.getElementById('config-input'),
+            configTitle: document.getElementById('config-title'),
+            configConfirmBtn: document.getElementById('config-confirm-btn'),
+            dungeonAddModal: document.getElementById('dungeon-add-modal'),
+            editModal: document.getElementById('edit-exercise-modal'),
+            regModal: document.getElementById('registration-modal'),
+            regInput: document.getElementById('reg-name-input'),
+            rebootModal: document.getElementById('reboot-modal'),
+            modalLevel: document.getElementById('modal-new-level'),
+            totalXPVal: document.getElementById('total-xp-val'),
+            dailyXPVal: document.getElementById('daily-xp-total-val'),
+            cpVal: document.getElementById('cp-val'),
+            inventoryModal: document.getElementById('inventory-modal'),
+            inventoryGrid: document.getElementById('inventory-grid'),
+            clearBanner: document.getElementById('quest-clear-banner')
+        };
 
-    // 3. Set Initial Mana if zero
-    if (state.currentMP === 0) state.currentMP = getMaxMP();
+        // 3. Set Initial Mana if zero
+        if (state.currentMP === 0) state.currentMP = getMaxMP();
 
-    // 4. Run Core Logic
-    checkLevelUp();
-    runBootSequence();
-    checkDailyReset();
-    setupEventListeners();
-    updateUI();
-    startGlobalTimers();
-    startManaRegen();
-    registerServiceWorker();
+        // 4. Run Core Logic
+        checkLevelUp();
+        runBootSequence();
+        checkDailyReset();
+        setupEventListeners();
+        updateUI();
+        startGlobalTimers();
+        startManaRegen();
+        registerServiceWorker();
 
-    window.addEventListener('click', () => { SystemAudio.init(); }, { once: true });
+        window.addEventListener('click', () => { SystemAudio.init(); }, { once: true });
+        console.log("SYSTEM: INITIALIZATION COMPLETE");
+    } catch (e) {
+        console.error("SYSTEM CRITICAL ERROR:", e);
+        alert("SYSTEM ERROR: " + e.message);
+    }
 }
 
 function registerServiceWorker() {
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('./sw.js')
-                .then(reg => console.log('System SW: Synchronized', reg))
+                .then(reg => {
+                    console.log('System SW: Synchronized', reg);
+                    reg.onupdatefound = () => {
+                        const installingWorker = reg.installing;
+                        installingWorker.onstatechange = () => {
+                            if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                showToast("NEW UPDATE READY. RELOAD SYSTEM.");
+                            }
+                        };
+                    };
+                })
                 .catch(err => console.log('System SW: Failed to Sync', err));
         });
     }
@@ -413,7 +429,18 @@ window.saveExerciseEdit = function() {
 
 function loadData() {
     const s = localStorage.getItem('soloLevelingData');
-    if (s) { try { state = { ...state, ...JSON.parse(s) }; } catch (e) {} }
+    if (s) { 
+        try { 
+            const saved = JSON.parse(s);
+            // Deep merge stats to prevent missing stat crashes
+            if (saved.stats) {
+                saved.stats = { ...state.stats, ...saved.stats };
+            }
+            state = { ...state, ...saved }; 
+        } catch (e) {
+            console.error("LOAD FAILED", e);
+        } 
+    }
 }
 function saveData() { localStorage.setItem('soloLevelingData', JSON.stringify(state)); }
 function checkDailyReset() {
@@ -430,10 +457,14 @@ function updateCharacterVisual() {
     else if (state.level >= 30) { r = "SS-RANK"; c = "#ffca28"; rc = "rank-ss"; }
     else if (state.level >= 25) { r = "S-RANK"; c = "#f44336"; rc = "rank-s"; }
     else if (state.level >= 20) { r = "A-RANK"; c = "#ff9800"; rc = "rank-a"; }
-    else if (state.level >= 15) { r = "B-RANK"; color = "#bb86fc"; rc = "rank-b"; }
+    else if (state.level >= 15) { r = "B-RANK"; c = "#bb86fc"; rc = "rank-b"; } // FIXED: 'color' to 'c'
     else if (state.level >= 10) { r = "C-RANK"; c = "#00f2ff"; rc = "rank-c"; }
     else if (state.level >= 5) { r = "D-RANK"; c = "#4caf50"; rc = "rank-d"; }
-    a.classList.add(rc); els.rankText.textContent = r; els.rankText.style.color = c;
+    a.classList.add(rc); 
+    if (els.rankText) {
+        els.rankText.textContent = r; 
+        els.rankText.style.color = c;
+    }
 }
 function addLogEntry(n, x) {
     const d = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
